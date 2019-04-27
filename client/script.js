@@ -2,12 +2,12 @@ var createLeagueForm = document.querySelector("form[action='leagues'][method='PO
 if (createLeagueForm) {
     createLeagueForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        var name = event.target.name.value;
-        var slug = slugify(name);
+        var leagueName = event.target.name.value;
+        var slug = slugify(leagueName);
         if (getLeagueData(slug) != null) {
             alert("League name is already taken, please try another.");
         } else {
-            saveLeagueData(slug, { name: name });
+            saveLeagueData(slug, { name: encodeURIComponent(leagueName) });
             window.location = generateLeagueUrl(slug);
         }
     });
@@ -32,7 +32,8 @@ var getAllLeagueSlugs = () => {
 }
 
 var getLeagueFromUrl = () => {
-    return parseQuery(window.location.search)["league"];
+    var leagueInUrl = parseQuery(window.location.search)["league"];
+    return leagueInUrl ? slugify(leagueInUrl) : null;
 }
 var generateLeagueUrl = (slug) => {
     return "show.html?league=" + slug;
