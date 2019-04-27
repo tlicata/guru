@@ -7,11 +7,55 @@ if (createLeagueForm) {
         if (getLeagueData(slug) != null) {
             alert("League name is already taken, please try another.");
         } else {
-            saveLeagueData(slug, { name: encodeURIComponent(leagueName) });
+            saveLeagueData(slug, { name: leagueName });
             window.location = generateLeagueUrl(slug);
         }
     });
 }
+
+var addTeamButton = document.querySelector("#add-team-btn");
+if (addTeamButton) {
+    addTeamButton.addEventListener("click", (event) => {
+        var teamName = prompt("What is the new team's name?").trim();
+        addTeamToLeague(teamName, getLeagueSlugFromUrl());
+        replaceTeamsOrPlayersOnPage();
+    });
+}
+var addPlayerButton = document.querySelector("#add-player-btn");
+if (addPlayerButton) {
+    addPlayerButton.addEventListener("click", (event) => {
+        var playerName = prompt("What is the new player's name?").trim();
+        addPlayerToLeague(playerName, getLeagueSlugFromUrl());
+        replaceTeamsOrPlayersOnPage();
+    });
+}
+
+var addTeamToLeague = (teamName, leagueSlug) => {
+    var leagueData = getLeagueData(leagueSlug);
+    if (leagueData) {
+        if (!leagueData.teams) {
+            leagueData.teams = [teamName];
+        } else {
+            leagueData.teams.push(teamName);
+        }
+        saveLeagueData(leagueSlug, leagueData);
+    } else {
+        alert("Cannot add team to an unknown league.");
+    }
+};
+var addPlayerToLeague = (playerName, leagueSlug) => {
+    var leagueData = getLeagueData(leagueSlug);
+    if (leagueData) {
+        if (!leagueData.players) {
+            leagueData.players = [playerName];
+        } else {
+            leagueData.players.push(playerName);
+        }
+        saveLeagueData(leagueSlug, leagueData);
+    } else {
+        alert("Cannot add player to an unknown league.");
+    }
+};
 
 var saveLeagueData = (leagueSlug, data) => {
     if (localStorage == undefined || localStorage.setItem == undefined) {
@@ -31,7 +75,7 @@ var getAllLeagueSlugs = () => {
     return slugs;
 }
 
-var getLeagueFromUrl = () => {
+var getLeagueSlugFromUrl = () => {
     var leagueInUrl = parseQuery(window.location.search)["league"];
     return leagueInUrl ? slugify(leagueInUrl) : null;
 }
@@ -41,6 +85,15 @@ var generateLeagueUrl = (slug) => {
 
 var slugify = (name) => {
     return encodeURIComponent(name.toLowerCase().replace(" ", "-"));
+};
+
+var escape = (str) => {
+    return str
+        .replace(/\&/g, "&amp;")
+        .replace(/\</g, "&lt;")
+        .replace(/\>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/\'/g, "&#39;");
 };
 
 var parseQuery = (queryString) => {
@@ -54,13 +107,13 @@ var parseQuery = (queryString) => {
 }
 
 var replaceCurrentLeagueNameOnPage = () => {
-    var leagueSlug = getLeagueFromUrl();
+    var leagueSlug = getLeagueSlugFromUrl();
     if (leagueSlug) {
         var leagueData = getLeagueData(leagueSlug);
         var leagueName = leagueData["name"];
         if (leagueName) {
             document.querySelectorAll(".current-league").forEach((elem) => {
-                elem.innerHTML = leagueName;
+                elem.innerHTML = escape(leagueName);
             });
         }
     }
@@ -76,7 +129,7 @@ var replaceListOfLeaguesOnPage = () => {
                 var url = generateLeagueUrl(slug);
                 html += [
                     "<li>",
-                    `<a href='${url}'>${league['name']}</a>`,
+                    `<a href='${url}'>${escape(league['name'])}</a>`,
                     "</li>"
                 ].join("");
             });
@@ -86,5 +139,33 @@ var replaceListOfLeaguesOnPage = () => {
     }
 }
 
+var replaceTeamsOrPlayersOnPage = () => {
+    var teamsOrPlayers = document.querySelector(".list-teams-or-players");
+    if (teamsOrPlayers) {
+        var slug = getLeagueSlugFromUrl();
+        if (slug) {
+            var leagueData = getLeagueData(slug);
+            if (leagueData) {
+                var html = "";
+                if (leagueData.teams) {
+                    html = "<ul>";
+                    leagueData.teams.forEach((team) => {
+                        html += `<li>${escape(team)}</li>`;
+                    });
+                    html += "</ul>";
+                } else if (leagueData.players) {
+                    html = "<ul>";
+                    leagueData.players.forEach((player) => {
+                        html += `<li>${escape(player)}</li>`;
+                    });
+                    html += "</ul>";
+                }
+                teamsOrPlayers.innerHTML = html;
+            }
+        }
+    }
+}
+
 replaceCurrentLeagueNameOnPage();
 replaceListOfLeaguesOnPage();
+replaceTeamsOrPlayersOnPage();
