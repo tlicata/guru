@@ -84,7 +84,7 @@ var generateLeagueUrl = (slug) => {
 };
 
 var slugify = (name) => {
-    return encodeURIComponent(name.toLowerCase().replace(" ", "-"));
+    return encodeURIComponent(name.toLowerCase().replace(/ /g, "-"));
 };
 
 var escape = (str) => {
