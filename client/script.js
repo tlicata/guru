@@ -24,9 +24,14 @@ if (addTeamButton) {
 var addPlayerButton = document.querySelector("#add-player-btn");
 if (addPlayerButton) {
     addPlayerButton.addEventListener("click", (event) => {
-        var playerName = prompt("What is the new player's name?").trim();
-        addPlayerToLeague(playerName, getLeagueSlugFromUrl());
-        replaceTeamsOrPlayersOnPage();
+        var response = prompt("What is the new player's name?");
+        if (response) {
+            var playerName = response.trim();
+            addPlayerToLeague(playerName, getLeagueSlugFromUrl());
+            replaceTeamsOrPlayersOnPage();
+        }
+    });
+}
     });
 }
 
