@@ -32,6 +32,27 @@ if (addPlayerButton) {
         }
     });
 }
+var removePlayerButton = document.querySelector("#del-player-btn");
+if (removePlayerButton) {
+    removePlayerButton.addEventListener("click", (event) => {
+        var list = document.querySelectorAll("li");
+        if (list.length > 0) {
+            message("Click on the player to delete");
+        } else {
+            message("No players to delete", 3000);
+        }
+        var handler = (event) => {
+            var playerName = event.target.innerHTML;
+            removePlayerFromLeague(playerName, getLeagueSlugFromUrl());
+            list.forEach((li) => {
+                li.removeEventListener("click", handler);
+            });
+            replaceTeamsOrPlayersOnPage();
+            message(`Deleted player: "${playerName}"`, 3000);
+        };
+        list.forEach((li) => {
+            li.addEventListener("click", handler);
+        });
     });
 }
 
@@ -59,6 +80,19 @@ var addPlayerToLeague = (playerName, leagueSlug) => {
         saveLeagueData(leagueSlug, leagueData);
     } else {
         alert("Cannot add player to an unknown league.");
+    }
+};
+var removePlayerFromLeague = (playerName, leagueSlug) => {
+    var leagueData = getLeagueData(leagueSlug);
+    if (leagueData) {
+        if (leagueData.players) {
+            leagueData.players = leagueData.players.filter((player) => {
+                return player !== playerName;
+            });
+        }
+        saveLeagueData(leagueSlug, leagueData);
+    } else {
+        alert("Cannot remove player from an unknown league.");
     }
 };
 
@@ -109,6 +143,20 @@ var parseQuery = (queryString) => {
         query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
     }
     return query;
+}
+
+var message = (msg, time) => {
+    var display = document.querySelector(".message");
+    if (msg == null) {
+        display.innerHTML = "";
+    } else {
+        display.innerHTML = `<p>${escape(msg)}</p>`;
+        display.style.color = "red";
+    }
+
+    if (time) {
+        setTimeout(message, time);
+    }
 }
 
 var replaceCurrentLeagueNameOnPage = () => {
