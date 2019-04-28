@@ -58,6 +58,19 @@ if (removePlayerButton) {
         });
     });
 }
+var rawDataButton = document.querySelector("#raw-data-btn");
+var rawDataToggle = true;
+if (rawDataButton) {
+    rawDataButton.addEventListener("click", () => {
+        if (rawDataToggle) {
+            var leagueData = getLeagueData(getLeagueSlugFromUrl());
+            message(JSON.stringify(leagueData, null, 2), null, true);
+        } else {
+            message();
+        }
+        rawDataToggle = !rawDataToggle;
+    });
+}
 
 var addTeamToLeague = (teamName, leagueSlug) => {
     var leagueData = getLeagueData(leagueSlug);
@@ -153,12 +166,13 @@ var getElementIndex = (element) => {
   return Array.prototype.indexOf.call(element.parentNode.children, element);
 }
 
-var message = (msg, time) => {
+var message = (msg, time, pre) => {
     var display = document.querySelector(".message");
     if (msg == null) {
         display.innerHTML = "";
     } else {
-        display.innerHTML = `<p>${escape(msg)}</p>`;
+        msg = escape(msg);
+        display.innerHTML = pre ? `<pre>${msg}</pre>` :`<p>${msg}</p>`;
         display.style.color = "red";
     }
 
