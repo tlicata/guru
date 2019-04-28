@@ -223,7 +223,7 @@ var replaceTeamsOrPlayersOnPage = () => {
             var leagueData = getLeagueData(slug);
             if (leagueData) {
                 var html = "";
-                if (leagueData.teams) {
+                if (false && leagueData.teams) {
                     html = "<ul>";
                     leagueData.teams.forEach((team) => {
                         html += `<li>${escape(team)}</li>`;
