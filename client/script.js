@@ -118,6 +118,7 @@ var replaceCurrentLeagueNameOnPage = () => {
         }
     }
 }
+
 var replaceListOfLeaguesOnPage = () => {
     var listOfLeagues = document.querySelector(".list-leagues");
     if (listOfLeagues) {
@@ -166,6 +167,15 @@ var replaceTeamsOrPlayersOnPage = () => {
     }
 }
 
+var showOrHideYourLeagues = () => {
+    var viewer = document.querySelector(".view-your-leagues");
+    if (viewer) {
+        var someLeagues = getAllLeagueSlugs().length > 0;
+        viewer.style.display = someLeagues ? "inline" : "none";
+    }
+}
+
 replaceCurrentLeagueNameOnPage();
 replaceListOfLeaguesOnPage();
 replaceTeamsOrPlayersOnPage();
+showOrHideYourLeagues();
