@@ -43,12 +43,15 @@ if (removePlayerButton) {
         }
         var handler = (event) => {
             var playerName = event.target.innerHTML;
-            removePlayerFromLeague(playerName, getLeagueSlugFromUrl());
+            var idx = getElementIndex(event.target);
+            var success = removePlayerFromLeagueAtIndex(playerName, idx, getLeagueSlugFromUrl());
             list.forEach((li) => {
                 li.removeEventListener("click", handler);
             });
-            replaceTeamsOrPlayersOnPage();
-            message(`Deleted player: "${playerName}"`, 3000);
+            if (success) {
+                replaceTeamsOrPlayersOnPage();
+                message(`Deleted player: "${playerName}"`, 3000);
+            }
         };
         list.forEach((li) => {
             li.addEventListener("click", handler);
@@ -82,15 +85,16 @@ var addPlayerToLeague = (playerName, leagueSlug) => {
         alert("Cannot add player to an unknown league.");
     }
 };
-var removePlayerFromLeague = (playerName, leagueSlug) => {
+var removePlayerFromLeagueAtIndex = (playerName, idx, leagueSlug) => {
     var leagueData = getLeagueData(leagueSlug);
-    if (leagueData) {
-        if (leagueData.players) {
-            leagueData.players = leagueData.players.filter((player) => {
-                return player !== playerName;
-            });
+    if (leagueData && leagueData.players) {
+        if (leagueData.players[idx] == playerName) {
+            leagueData.players.splice(idx, 1);
+            saveLeagueData(leagueSlug, leagueData);
+            return true;
+        } else {
+            message(`Cannot delete player: "${playerName}". An error occurred.`, 5000);
         }
-        saveLeagueData(leagueSlug, leagueData);
     } else {
         alert("Cannot remove player from an unknown league.");
     }
@@ -143,6 +147,10 @@ var parseQuery = (queryString) => {
         query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
     }
     return query;
+}
+
+var getElementIndex = (element) => {
+  return Array.prototype.indexOf.call(element.parentNode.children, element);
 }
 
 var message = (msg, time) => {
